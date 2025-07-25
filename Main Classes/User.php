@@ -18,7 +18,7 @@ abstract class User
     protected $disable_status;
     protected $pdo;
     protected $profile_image;
-    
+
 
 
     public function __construct()
@@ -36,7 +36,7 @@ abstract class User
         return $stmt->rowCount() > 0;
     }
 
-    
+
 
 
     public function checkEmailExists($email)
@@ -79,10 +79,15 @@ abstract class User
                 ];
                 // If technician, fetch technician_id and add to response
                 if (strtolower($this->user_type) === 'technician') {
-                    require_once __DIR__ . '/Technician.php';
+                    require_once __DIR__ . '/technician.php';
                     $tech = new technician();
                     $technician_id = $tech->getTechnicianId($this->user_id);
-                    $response['technician_id'] = $technician_id;
+                    // Ensure only the primitive value is returned
+                    if (is_array($technician_id) && isset($technician_id['technician_id'])) {
+                        $response['technician_id'] = $technician_id['technician_id'];
+                    } else {
+                        $response['technician_id'] = $technician_id;
+                    }
                 }
                 return $response;
             }
@@ -194,8 +199,8 @@ abstract class User
             $user_id = $this->pdo->lastInsertId();
 
             // Step 3: Insert into `technician` table
-            $sqlTech = "INSERT INTO technician (user_id, proof, specialization, experience) 
-                    VALUES (?, ?, ?, ?)";
+            $sqlTech = "INSERT INTO technician (user_id, proof, specialization, experience, status) 
+                    VALUES (?, ?, ?, ?, 'available')";
             $stmtTech = $this->pdo->prepare($sqlTech);
             $stmtTech->bindParam(1, $user_id);
             $stmtTech->bindParam(2, $this->cv_path);

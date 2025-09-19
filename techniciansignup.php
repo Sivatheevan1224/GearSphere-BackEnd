@@ -1,14 +1,10 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once 'corsConfig.php';
+initializeEndpoint();
+require_once 'sessionConfig.php';
 
 require_once './Main Classes/Technician.php';
+require_once './Main Classes/Mailer.php';
 
 $name = isset($_POST['name']) ? htmlspecialchars(strip_tags($_POST['name'])) : null;
 $email = isset($_POST['email']) ? filter_var($_POST['email'], FILTER_SANITIZE_EMAIL) : null;
@@ -20,7 +16,7 @@ $specialization = isset($_POST['specialization']) ? htmlspecialchars(strip_tags(
 $experience = isset($_POST['experience']) ? htmlspecialchars(strip_tags($_POST['experience'])) : null;
 $file = isset($_FILES['cv']) ? $_FILES['cv'] : null;
 
-if (!$name || !$email || !$password || !$contact_number || !$address ) {
+if (!$name || !$email || !$password || !$contact_number || !$address) {
     http_response_code(400);
     echo json_encode(["message" => "All fields are required."]);
     exit();
@@ -54,16 +50,39 @@ $TechnicianRegister = new technician();
 $result = $TechnicianRegister->registertechnician(
     $name,
     $email,
-    $hashed_password, // ✅ use hashed password
+    $hashed_password,
     $contact_number,
     $address,
     $user_type = 'Technician',
     $specialization,
     $experience,
-    $uniqueFileName // ✅ just save filename (or full path if needed)
+    $uniqueFileName
 );
 
 if ($result) {
+    // Create notification for admin when new technician registers
+    require_once __DIR__ . '/Main Classes/Notification.php';
+    require_once __DIR__ . '/DbConnector.php';
+    
+    try {
+        $db = new DBConnector();
+        $pdo = $db->connect();
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE user_type = 'admin' LIMIT 1");
+        $stmt->execute();
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($admin) {
+            $adminId = $admin['user_id'];
+            $notificationMessage = "New Technician Registered!\n\nName: $name\nEmail: $email\nContact: $contact_number\nAddress: $address\nSpecialization: $specialization\nExperience: $experience years\n\nPlease review the technician registration and verify credentials.";
+            
+            $notification = new Notification();
+            $notification->addUniqueNotification($adminId, $notificationMessage, 1); // 1-hour window for registration notifications
+        }
+    } catch (Exception $e) {
+        // Log error but don't fail the registration
+        error_log("Failed to create admin notification for technician registration: " . $e->getMessage());
+    }
+    
     http_response_code(200);
     echo json_encode(["status" => "success", "message" => "Technician was successfully registered."]);
 } else {

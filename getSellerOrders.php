@@ -1,28 +1,27 @@
 <?php
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once __DIR__ . '/corsConfig.php';
+initializeEndpoint();
+require_once __DIR__ . '/sessionConfig.php';
 require_once __DIR__ . '/DbConnector.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
+}
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 try {
     $pdo = (new DBConnector())->connect();
     $stmt = $pdo->prepare(
         "SELECT o.order_id, o.order_date, o.status AS order_status, o.total_amount,
-                u.user_id AS customer_id, u.name AS customer_name, u.email AS customer_email, u.contact_number AS customer_phone, u.address AS shipping_address,
+                o.delivery_charge, o.delivery_address,
+                u.user_id AS customer_id, u.name AS customer_name, u.email AS customer_email, u.contact_number AS customer_phone, u.address AS customer_address,
                 oi.order_item_id, oi.product_id, oi.quantity, oi.price,
                 p.name AS product_name, p.category, p.image_url,
                 pay.payment_method
@@ -46,12 +45,14 @@ try {
                 'date' => $row['order_date'],
                 'status' => ucfirst($row['order_status']),
                 'total' => $row['total_amount'],
+                'delivery_charge' => $row['delivery_charge'] ?? 0,
+                'delivery_address' => $row['delivery_address'] ?: $row['customer_address'], // Use order delivery address or fallback to user address
                 'customer' => [
                     'id' => $row['customer_id'],
                     'name' => $row['customer_name'],
                     'email' => $row['customer_email'],
                     'phone' => $row['customer_phone'],
-                    'address' => $row['shipping_address'],
+                    'address' => $row['customer_address'],
                 ],
                 'items' => [],
                 'paymentMethod' => $row['payment_method'] ?? '',

@@ -1,13 +1,7 @@
 <?php
-
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+session_start();
+require_once 'corsConfig.php';
+initializeEndpoint();
 
 require_once './Main Classes/Customer.php';
 require_once './Main Classes/Mailer.php';
@@ -25,18 +19,23 @@ if (!$email) {
 
 $checkEmail = new Customer();
 
-if ($checkEmail->checkEmailExists($email)) {  // Change this function to only check email existence
+if ($checkEmail->checkEmailExists($email)) {
     $otp = random_int(100000, 999999);
+
+    // Store OTP in session with expiry (5 minutes) for password reset
+    $_SESSION['password_reset_otp'] = $otp;
+    $_SESSION['password_reset_email'] = $email;
+    $_SESSION['password_reset_expire'] = time() + 300; // 5 minutes
+
     $mailer = new Mailer();
-    $msg = "Dear User, <br> Your verification code is: <strong>$otp</strong><br>Use this 6-digit code to verify and change your password.";
-    $mailer->setInfo($email, 'OTP Verification', $msg);
+    // Use the new password reset template
+    $mailer->sendPasswordResetEmail($email, 'User', $otp);
 
     if ($mailer->send()) {
         http_response_code(200);
         echo json_encode([
             "success" => true,
-            "message" => "OTP sent to your email. Check your inbox.",
-            "otp" => $otp
+            "message" => "OTP sent to your email. Check your inbox."
         ]);
     } else {
         http_response_code(500);

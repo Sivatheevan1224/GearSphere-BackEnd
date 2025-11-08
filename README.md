@@ -1,6 +1,5 @@
 # GearSphere 🛠️💻
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)](https://php.net)
 [![React](https://img.shields.io/badge/React-18.0%2B-61dafb.svg)](https://reactjs.org)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-orange.svg)](https://mysql.com)
@@ -222,14 +221,9 @@ We welcome contributions! Please follow these steps:
 - Add comments for complex logic
 - Test thoroughly before submitting
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👨‍💻 Support & Contact
 
-- **Email**: support@gearsphere.com
-- **GitHub Issues**: [Report a Bug](https://github.com/Makinthan2001/gearsphere/issues)
+- **GitHub Issues**: [Report a Bug](https://github.com/Sivatheevan1224/gearsphere/issues)
 - **Documentation**: Check `/Documentation` folder
 - **Response Time**: Within 24 hours
 
@@ -258,7 +252,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **GearSphere** - Building PCs, Building Dreams 🚀💻
 
 Made with ❤️ by the GearSphere Team
-
-[Website](https://gearsphere.com) • [Documentation](./Documentation) • [Report Bug](https://github.com/Makinthan2001/gearsphere/issues) • [Feature Request](https://github.com/Makinthan2001/gearsphere/issues)
 
 </div>

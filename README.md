@@ -71,8 +71,8 @@ GearSphere revolutionizes the PC building experience by providing an integrated 
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Makinthan2001/gearsphere.git
-cd gearsphere
+git clone https://github.com/Sivatheevan1224/GearSphere-BackEnd.git
+cd GearSphere-BackEnd
 ```
 
 ### 2. Backend Setup

@@ -112,7 +112,10 @@ $password = "";
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost/gearsphere_api/GearSphere-BackEnd/
 - **Database**: http://localhost/phpmyadmin
-
+- 
+### FrontEnd Repository 
+ - **Repossitory** : https://github.com/Sivatheevan1224/GearSphere-FrontEnd
+   
 ### User Roles & Access
 - **Admin**: Full platform management and analytics
 - **Customer**: Browse, build PCs, and make purchases
@@ -223,7 +226,6 @@ We welcome contributions! Please follow these steps:
 
 ## 👨‍💻 Support & Contact
 
-- **GitHub Issues**: [Report a Bug](https://github.com/Sivatheevan1224/gearsphere/issues)
 - **Documentation**: Check `/Documentation` folder
 - **Response Time**: Within 24 hours
 
